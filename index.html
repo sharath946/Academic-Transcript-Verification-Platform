@@ -1,0 +1,1406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Transcript Verification Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .platform-header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .platform-header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .interface-selector {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .interface-btn {
+            padding: 12px 24px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            font-size: 16px;
+        }
+
+        .interface-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .interface-btn.active {
+            background: rgba(255,255,255,0.4);
+            border-color: rgba(255,255,255,0.6);
+        }
+
+        .interface-panel {
+            display: none;
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            backdrop-filter: blur(20px);
+        }
+
+        .interface-panel.active {
+            display: block;
+        }
+
+        .interface-header {
+            color: #2c3e50;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 2em;
+        }
+
+        .verification-tabs {
+            display: flex;
+            background: #34495e;
+            border-radius: 10px 10px 0 0;
+            overflow: hidden;
+            margin-bottom: 0;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 15px;
+            background: #34495e;
+            color: white;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-size: 16px;
+        }
+
+        .tab-btn:hover {
+            background: #2c3e50;
+        }
+
+        .tab-btn.active {
+            background: #3498db;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 30px;
+            background: #ecf0f1;
+            border-radius: 0 0 10px 10px;
+            min-height: 400px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            grid-column: 1 / -1;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .input-group input, .input-group select, .input-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #bdc3c7;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-group input:focus, .input-group select:focus, .input-group textarea:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .input-group textarea {
+            height: 100px;
+            resize: vertical;
+        }
+
+        .submit-btn {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .submit-btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .result-section.show {
+            display: block;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding: 10px 0;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .status-pending {
+            color: #f39c12;
+            font-weight: 600;
+        }
+
+        .status-verified {
+            color: #27ae60;
+            font-weight: 600;
+        }
+
+        .status-failed {
+            color: #e74c3c;
+            font-weight: 600;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+        }
+
+        .key-display {
+            font-family: 'Courier New', monospace;
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 10px;
+            border-radius: 5px;
+            word-break: break-all;
+            margin: 10px 0;
+            font-size: 12px;
+        }
+
+        .additional-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .info-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .info-card h4 {
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        .step-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 20px 0;
+            padding: 15px;
+            background: #e8f4fd;
+            border-radius: 10px;
+            border-left: 4px solid #3498db;
+        }
+
+        .step-number {
+            background: #3498db;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        .key-input-section {
+            background: #fff3cd;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 2px solid #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="platform-header">
+            <h1>🎓 Academic Transcript Verification Platform</h1>
+            <p>Secure, Blockchain-Based Certificate Authentication</p>
+        </div>
+
+        <!-- Interface Navigation -->
+        <div class="interface-selector">
+            <button class="interface-btn active" data-target="verifier">
+                🔍 Verifier Interface
+            </button>
+            <button class="interface-btn" data-target="university">
+                🏛️ University Interface
+            </button>
+            <button class="interface-btn" data-target="admin">
+                👨‍💼 Admin Panel
+            </button>
+        </div>
+
+        <!-- VERIFIER INTERFACE -->
+        <div id="verifier" class="interface-panel active">
+            <h2 class="interface-header">Verifier Interface</h2>
+            
+            <div class="verification-tabs">
+                <button class="tab-btn active" data-tab="serial">Serial Number</button>
+                <button class="tab-btn" data-tab="basic">Basic Info</button>
+                <button class="tab-btn" data-tab="additional">Additional Info</button>
+                <button class="tab-btn" data-tab="decryption">Decryption Fails</button>
+            </div>
+
+            <!-- Serial Number Tab -->
+            <div id="serial-content" class="tab-content active">
+                <div class="key-input-section">
+                    <h4>🔐 Verification Requirements</h4>
+                    <p>Enter both Serial Number and Verification Key to decrypt certificate data.</p>
+                </div>
+                <div class="form-section">
+                    <div class="input-group">
+                        <label for="serialInput">Certificate Serial Number</label>
+                        <input type="text" id="serialInput" placeholder="Enter certificate serial number">
+                    </div>
+                    <div class="input-group">
+                        <label for="serialKey">Verification Key (Encryption or Private Key)</label>
+                        <input type="password" id="serialKey" placeholder="Enter verification key">
+                    </div>
+                    <button class="submit-btn" onclick="verifyBySerial()">SUBMIT</button>
+                </div>
+                <div id="serialResult" class="result-section"></div>
+            </div>
+
+            <!-- Basic Info Tab -->
+            <div id="basic-content" class="tab-content">
+                <div class="key-input-section">
+                    <h4>🔐 Verification Requirements</h4>
+                    <p>Enter both Serial Number and Verification Key to decrypt certificate data.</p>
+                </div>
+                <div class="form-section">
+                    <div class="input-group">
+                        <label for="basicInput">Certificate Serial Number</label>
+                        <input type="text" id="basicInput" placeholder="Enter certificate serial number">
+                    </div>
+                    <div class="input-group">
+                        <label for="basicKey">Verification Key (Encryption or Private Key)</label>
+                        <input type="password" id="basicKey" placeholder="Enter verification key">
+                    </div>
+                    <button class="submit-btn" onclick="showBasicInfo()">SUBMIT</button>
+                </div>
+                <div id="basicResult" class="result-section"></div>
+            </div>
+
+            <!-- Additional Info Tab -->
+            <div id="additional-content" class="tab-content">
+                <div class="key-input-section">
+                    <h4>🔐 Verification Requirements</h4>
+                    <p>Enter both Serial Number and Verification Key to decrypt certificate data.</p>
+                </div>
+                <div class="form-section">
+                    <div class="input-group">
+                        <label for="additionalInput">Certificate Serial Number</label>
+                        <input type="text" id="additionalInput" placeholder="Enter certificate serial number">
+                    </div>
+                    <div class="input-group">
+                        <label for="additionalKey">Verification Key (Encryption or Private Key)</label>
+                        <input type="password" id="additionalKey" placeholder="Enter verification key">
+                    </div>
+                    <button class="submit-btn" onclick="showAdditionalInfo()">SUBMIT</button>
+                </div>
+                <div id="additionalResult" class="result-section"></div>
+            </div>
+
+            <!-- Decryption Fails Tab -->
+            <div id="decryption-content" class="tab-content">
+                <div class="alert alert-warning">
+                    <strong>⚠️ Test Decryption Failure:</strong> Enter any serial number with wrong/no key to see decryption failure.
+                </div>
+                <div class="form-section">
+                    <div class="input-group">
+                        <label for="decryptionInput">Certificate Serial Number</label>
+                        <input type="text" id="decryptionInput" placeholder="Enter serial number">
+                    </div>
+                    <div class="input-group">
+                        <label for="decryptionKey">Wrong/Invalid Key</label>
+                        <input type="password" id="decryptionKey" placeholder="Enter wrong key or leave empty">
+                    </div>
+                    <button class="submit-btn" onclick="simulateDecryptionFail()">SUBMIT</button>
+                </div>
+                <div id="decryptionResult" class="result-section"></div>
+            </div>
+        </div>
+
+        <!-- UNIVERSITY INTERFACE -->
+        <div id="university" class="interface-panel">
+            <h2 class="interface-header">University Application Interface</h2>
+            
+            <div class="alert alert-info">
+                <strong>📝 Instructions:</strong> Fill in student details to generate certificate with unique verification keys.
+            </div>
+
+            <div class="form-section">
+                <form id="universityForm">
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label for="studentId">Student ID *</label>
+                            <input type="text" id="studentId" placeholder="Enter student ID" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="fullName">Full Name *</label>
+                            <input type="text" id="fullName" placeholder="Enter full name" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="universityName">University *</label>
+                            <input type="text" id="universityName" placeholder="Enter university name" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="degreeTitle">Degree Title *</label>
+                            <input type="text" id="degreeTitle" placeholder="Enter degree title" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="certType">Certificate Type *</label>
+                            <select id="certType" required>
+                                <option value="">Select Certificate Type</option>
+                                <option value="Bachelor's Degree">Bachelor's Degree</option>
+                                <option value="Master's Degree">Master's Degree</option>
+                                <option value="PhD">PhD</option>
+                                <option value="MBA">MBA</option>
+                                <option value="Diploma">Diploma</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label for="gradDate">Graduation Date *</label>
+                            <input type="date" id="gradDate" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="input-group">
+                            <label for="certificateUpload">📄 Upload Certificate Document (Optional)</label>
+                            <input type="file" id="certificateUpload" accept=".pdf,.jpg,.jpeg,.png" style="padding: 8px;">
+                            <small style="color: #7f8c8d; display: block; margin-top: 5px;">Supported formats: PDF, JPG, PNG (Max 5MB)</small>
+                        </div>
+                    </div>
+                    
+                    <button type="button" class="submit-btn" onclick="submitUniversityForm()">
+                        🚀 SUBMIT APPLICATION
+                    </button>
+                </form>
+
+                <div class="step-indicator">
+                    <div class="step-number">1</div>
+                    <span>Submit application to verify and generate unique keys</span>
+                </div>
+            </div>
+
+            <div id="universityResult" class="result-section"></div>
+        </div>
+
+        <!-- ADMIN PANEL -->
+        <div id="admin" class="interface-panel">
+            <h2 class="interface-header">Admin Panel - Manual Student Entry</h2>
+            
+            <div class="alert alert-info">
+                <strong>⚠️ Administrator Access:</strong> Register students with automatic unique key generation for each entry.
+            </div>
+
+            <div class="form-section">
+                <form id="adminForm">
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label for="adminStudentId">Student ID *</label>
+                            <input type="text" id="adminStudentId" placeholder="Enter unique student ID" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="adminFullName">Full Name *</label>
+                            <input type="text" id="adminFullName" placeholder="Enter student full name" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="adminUniversity">University *</label>
+                            <input type="text" id="adminUniversity" placeholder="Enter university name" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="adminDegree">Degree Program *</label>
+                            <input type="text" id="adminDegree" placeholder="Enter degree program" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="adminCertType">Certificate Type *</label>
+                            <select id="adminCertType" required>
+                                <option value="">Select Type</option>
+                                <option value="Bachelor's Degree">Bachelor's Degree</option>
+                                <option value="Master's Degree">Master's Degree</option>
+                                <option value="PhD">PhD</option>
+                                <option value="MBA">MBA</option>
+                                <option value="Diploma">Diploma</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label for="adminGPA">GPA *</label>
+                            <input type="number" id="adminGPA" step="0.01" min="0" max="4.0" placeholder="3.85" required>
+                        </div>
+                    </div>
+
+                    <button type="button" class="submit-btn" onclick="addStudentManually()">
+                        🔐 ADD STUDENT & GENERATE KEYS
+                    </button>
+                </form>
+            </div>
+
+            <div id="adminResult" class="result-section"></div>
+        </div>
+    </div>
+
+    <script>
+        // Sample database - will be populated dynamically
+        let certificateDatabase = {};
+        let pendingStudents = {}; // Students registered in Admin but not verified by University
+        let nextSerialNumber = 1;
+
+        // Initialize event listeners when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🎓 Platform loaded successfully!');
+            
+            // Interface switching
+            document.querySelectorAll('.interface-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const target = this.getAttribute('data-target');
+                    switchInterface(target);
+                });
+            });
+
+            // Tab switching
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tab = this.getAttribute('data-tab');
+                    switchTab(tab);
+                });
+            });
+
+            // Set default date
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('gradDate').value = today;
+        });
+
+        // Interface switching function
+        function switchInterface(targetName) {
+            console.log('Switching to interface:', targetName);
+            
+            document.querySelectorAll('.interface-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-target="${targetName}"]`).classList.add('active');
+
+            document.querySelectorAll('.interface-panel').forEach(panel => {
+                panel.classList.remove('active');
+            });
+            document.getElementById(targetName).classList.add('active');
+        }
+
+        // Tab switching function
+        function switchTab(tabName) {
+            console.log('Switching to tab:', tabName);
+            
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tabName + '-content').classList.add('active');
+        }
+
+        // Generate UNIQUE keys for each student
+        function generateUniqueHash(studentId, timestamp) {
+            const combined = studentId + timestamp + Math.random().toString(36);
+            const chars = '0123456789abcdef';
+            let result = '0x';
+            for (let i = 0; i < 64; i++) {
+                const index = (combined.charCodeAt(i % combined.length) + i) % chars.length;
+                result += chars.charAt(index);
+            }
+            return result;
+        }
+
+        function generateUniqueEncryptionKey(studentId, timestamp) {
+            const chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const combined = 'ENC' + studentId + timestamp + Math.random().toString(36);
+            let result = 'ENC-';
+            for (let i = 0; i < 32; i++) {
+                const index = (combined.charCodeAt(i % combined.length) + i * 3) % chars.length;
+                result += chars.charAt(index);
+            }
+            return result;
+        }
+
+        function generateUniquePrivateKey(studentId, timestamp) {
+            const chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const combined = 'PRV' + studentId + timestamp + Math.random().toString(36) + 'PRIVATE';
+            let result = 'PRV-';
+            for (let i = 0; i < 32; i++) {
+                const index = (combined.charCodeAt(i % combined.length) + i * 7) % chars.length;
+                result += chars.charAt(index);
+            }
+            return result;
+        }
+
+        function generateTransactionId() {
+            const chars = '0123456789abcdef';
+            let result = '0xTX-';
+            for (let i = 0; i < 60; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
+        }
+
+        // Verify certificate with key validation
+        function verifyWithKey(serial, key, resultDiv, tabType) {
+            if (!serial || !key) {
+                showResult(resultDiv, '<div class="alert alert-error"><strong>Error:</strong> Please enter both serial number and verification key.</div>');
+                return;
+            }
+
+            if (!certificateDatabase[serial]) {
+                showResult(resultDiv, '<div class="alert alert-error"><strong>❌ Certificate Not Found:</strong> Serial number does not exist in database.</div>');
+                return;
+            }
+
+            const cert = certificateDatabase[serial];
+            const isValidKey = (key === cert.encryptionKey || key === cert.privateKey);
+
+            // Check if certificate is verified by university
+            if (cert.status !== 'verified') {
+                const html = `
+                    <div class="alert alert-error">
+                        <h4>🔒 CERTIFICATE NOT VERIFIED</h4>
+                        <p><strong>Serial Number:</strong> ${serial}</p>
+                        <p><strong>Status:</strong> <span class="status-failed">Pending University Verification ⏳</span></p>
+                    </div>
+                    <div style="background: #fff3cd; padding: 20px; border-radius: 10px; border: 2px solid #ffc107; margin: 20px 0;">
+                        <h4 style="color: #856404;">⚠️ Verification Pending</h4>
+                        <p style="color: #856404; margin: 10px 0;">This certificate has been registered in Admin Panel but <strong>NOT YET VERIFIED</strong> by the University Interface.</p>
+                        <div style="background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                            ***DATA LOCKED*** Certificate must be verified by university before decryption is possible
+                        </div>
+                        <p style="color: #856404; margin-top: 10px;"><strong>Required Action:</strong> Student must complete verification in University Interface first.</p>
+                    </div>
+                    <div class="alert alert-warning">
+                        <strong>📋 Next Steps:</strong>
+                        <ul style="margin-top: 10px; padding-left: 20px;">
+                            <li>Go to University Interface</li>
+                            <li>Enter the same student details that were registered in Admin Panel</li>
+                            <li>Complete university verification process</li>
+                            <li>After verification, certificate can be decrypted here</li>
+                        </ul>
+                    </div>
+                `;
+                showResult(resultDiv, html);
+                return;
+            }
+
+            if (!isValidKey) {
+                // DECRYPTION FAILED
+                const html = `
+                    <div class="alert alert-error">
+                        <h4>🔒 DECRYPTION FAILED</h4>
+                        <p><strong>Serial Number:</strong> ${serial}</p>
+                        <p><strong>Status:</strong> <span class="status-failed">Invalid Verification Key ❌</span></p>
+                    </div>
+                    <div style="background: #f8d7da; padding: 20px; border-radius: 10px; margin: 20px 0;">
+                        <h4 style="color: #721c24;">⚠️ Decryption Error</h4>
+                        <p style="color: #721c24;">The verification key entered is <strong>INCORRECT</strong>. Cannot decrypt certificate data.</p>
+                        <div style="background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                            ***ENCRYPTED DATA*** All information is encrypted and inaccessible
+                        </div>
+                        <p style="color: #721c24; margin-top: 10px;">Contact the student or issuing university for the correct verification key.</p>
+                    </div>
+                `;
+                showResult(resultDiv, html);
+                return;
+            }
+
+            // SUCCESSFUL VERIFICATION
+            let html = `
+                <div class="alert alert-success">
+                    <h4>✅ CERTIFICATE VERIFIED SUCCESSFULLY</h4>
+                    <p><strong>Serial Number:</strong> ${serial}</p>
+                    <p><strong>Status:</strong> <span class="status-verified">Certificate Verified ✓</span></p>
+                </div>
+            `;
+
+            if (tabType === 'serial') {
+                html += `
+                    <div class="info-row">
+                        <span><strong>Student ID:</strong></span>
+                        <span>${cert.studentId}</span>
+                    </div>
+                    <div class="info-row">
+                        <span><strong>Student Name:</strong></span>
+                        <span>${cert.fullName}</span>
+                    </div>
+                    <div class="info-row">
+                        <span><strong>University:</strong></span>
+                        <span>${cert.university}</span>
+                    </div>
+                    <div class="info-row">
+                        <span><strong>Created On:</strong></span>
+                        <span>${new Date(cert.createdOn * 1000).toLocaleDateString()}</span>
+                    </div>
+                    ${cert.certificateFile ? `
+                    <div style="margin-top: 20px; background: #e8f4fd; padding: 20px; border-radius: 10px; border: 2px solid #3498db;">
+                        <h4 style="color: #2c3e50;">📄 Certificate Document Available</h4>
+                        <p style="margin: 10px 0;">A certificate document has been uploaded for this student.</p>
+                        <p style="color: #5a6c7d;"><strong>File:</strong> ${cert.certificateFile.name}</p>
+                        <button class="submit-btn" onclick="downloadCertificate('${serial}')" style="margin-top: 10px;">
+                            📥 Download Certificate Document
+                        </button>
+                    </div>
+                    ` : ''}
+                `;
+            } else if (tabType === 'basic') {
+                html += `
+                    <div class="info-row">
+                        <span><strong>Student ID:</strong></span>
+                        <span>${cert.studentId}</span>
+                    </div>
+                    <div class="info-row">
+                        <span><strong>Full Name:</strong></span>
+                        <span>${cert.fullName}</span>
+                    </div>
+                    <div class="info-row">
+                        <span><strong>University:</strong></span>
+                        <span>${cert.university}</span>
+                    </div>
+                    <div class="info-row">
+                        <span><strong>Degree:</strong></span>
+                        <span>${cert.degree}</span>
+                    </div>
+                    ${cert.certificateFile ? `
+                    <div style="margin-top: 20px; background: #e8f4fd; padding: 20px; border-radius: 10px; border: 2px solid #3498db;">
+                        <h4 style="color: #2c3e50;">📄 Certificate Document Available</h4>
+                        <p style="margin: 10px 0;">A certificate document has been uploaded for this student.</p>
+                        <p style="color: #5a6c7d;"><strong>File:</strong> ${cert.certificateFile.name}</p>
+                        <button class="submit-btn" onclick="downloadCertificate('${serial}')" style="margin-top: 10px;">
+                            📥 Download Certificate Document
+                        </button>
+                    </div>
+                    ` : ''}
+                `;
+            } else if (tabType === 'additional') {
+                html += `
+                    <div class="additional-info-grid">
+                        <div class="info-card">
+                            <h4>Full Name</h4>
+                            <p>${cert.fullName}</p>
+                        </div>
+                        <div class="info-card">
+                            <h4>University</h4>
+                            <p>${cert.university}</p>
+                        </div>
+                        <div class="info-card">
+                            <h4>Degree</h4>
+                            <p>${cert.degree}</p>
+                        </div>
+                        <div class="info-card">
+                            <h4>Certificate Type</h4>
+                            <p>${cert.certType}</p>
+                        </div>
+                        <div class="info-card">
+                            <h4>Graduation Date</h4>
+                            <p>${cert.date}</p>
+                        </div>
+                        <div class="info-card">
+                            <h4>GPA</h4>
+                            <p>${cert.gpa}</p>
+                        </div>
+                        <div class="info-card">
+                            <h4>Honors</h4>
+                            <p>${cert.honors || 'None'}</p>
+                        </div>
+                        <div class="info-card">
+                            <h4>Specialization</h4>
+                            <p>${cert.specialization || 'General'}</p>
+                        </div>
+                        <div class="info-card">
+                            <h4>Credits</h4>
+                            <p>${cert.credits}</p>
+                        </div>
+                    </div>
+                    <div style="margin-top: 20px;">
+                        <h4>🔐 Security Information</h4>
+                        <div style="margin: 10px 0;">
+                            <strong>Blockchain Hash:</strong>
+                            <div class="key-display">${cert.blockchainHash}</div>
+                        </div>
+                        <div style="margin: 10px 0;">
+                            <strong>Encryption Key:</strong>
+                            <div class="key-display">${cert.encryptionKey}</div>
+                        </div>
+                        <div style="margin: 10px 0;">
+                            <strong>Private Key:</strong>
+                            <div class="key-display">${cert.privateKey}</div>
+                        </div>
+                    </div>
+
+                    ${cert.certificateFile ? `
+                    <div style="margin-top: 20px; background: #e8f4fd; padding: 20px; border-radius: 10px; border: 2px solid #3498db;">
+                        <h4 style="color: #2c3e50;">📄 Certificate Document Available</h4>
+                        <p style="margin: 10px 0;">A certificate document has been uploaded for this student.</p>
+                        <p style="color: #5a6c7d;"><strong>File:</strong> ${cert.certificateFile.name}</p>
+                        <button class="submit-btn" onclick="downloadCertificate('${serial}')" style="margin-top: 10px;">
+                            📥 Download Certificate Document
+                        </button>
+                    </div>
+                    ` : ''}
+                `;
+            }
+
+            showResult(resultDiv, html);
+        }
+
+        // Verification functions
+        function verifyBySerial() {
+            const serial = document.getElementById('serialInput').value.trim();
+            const key = document.getElementById('serialKey').value.trim();
+            const resultDiv = document.getElementById('serialResult');
+            verifyWithKey(serial, key, resultDiv, 'serial');
+        }
+
+        function showBasicInfo() {
+            const serial = document.getElementById('basicInput').value.trim();
+            const key = document.getElementById('basicKey').value.trim();
+            const resultDiv = document.getElementById('basicResult');
+            verifyWithKey(serial, key, resultDiv, 'basic');
+        }
+
+        function showAdditionalInfo() {
+            const serial = document.getElementById('additionalInput').value.trim();
+            const key = document.getElementById('additionalKey').value.trim();
+            const resultDiv = document.getElementById('additionalResult');
+            verifyWithKey(serial, key, resultDiv, 'additional');
+        }
+
+        function simulateDecryptionFail() {
+            const serial = document.getElementById('decryptionInput').value.trim();
+            const key = document.getElementById('decryptionKey').value.trim();
+            const resultDiv = document.getElementById('decryptionResult');
+            
+            if (!serial) {
+                showResult(resultDiv, '<div class="alert alert-error"><strong>Error:</strong> Please enter a certificate serial number.</div>');
+                return;
+            }
+
+            if (!certificateDatabase[serial]) {
+                showResult(resultDiv, '<div class="alert alert-error"><strong>❌ Certificate Not Found:</strong> Serial number does not exist.</div>');
+                return;
+            }
+
+            const cert = certificateDatabase[serial];
+
+            // Check if certificate is not verified by university
+            if (cert.status !== 'verified') {
+                const html = `
+                    <div class="alert alert-error">
+                        <h4>🔒 DECRYPTION FAILED - NOT VERIFIED</h4>
+                        <p><strong>Serial Number:</strong> ${serial}</p>
+                        <p><strong>Status:</strong> <span class="status-failed">Certificate Not Verified by University ❌</span></p>
+                    </div>
+                    <div style="background: #f8d7da; padding: 20px; border-radius: 10px; border: 2px solid #e74c3c; margin: 20px 0;">
+                        <h4 style="color: #721c24;">⚠️ Decryption Failed - Verification Required</h4>
+                        <p style="color: #721c24; margin: 10px 0;">This certificate exists in the system but has <strong>NOT BEEN VERIFIED</strong> by the University Interface.</p>
+                        
+                        <div style="background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px; margin: 15px 0; font-family: monospace;">
+                            <div style="margin: 5px 0;">🔒 DECRYPTION LOCKED</div>
+                            <div style="margin: 5px 0;">***ENCRYPTED*** Student ID: ${cert.studentId.split('').map(() => '*').join('')}</div>
+                            <div style="margin: 5px 0;">***ENCRYPTED*** Name: ${'*'.repeat(cert.fullName.length)}</div>
+                            <div style="margin: 5px 0;">***ENCRYPTED*** University: ${'*'.repeat(cert.university.length)}</div>
+                            <div style="margin: 5px 0;">***ENCRYPTED*** All data is locked and inaccessible</div>
+                            <div style="margin: 10px 0; padding-top: 10px; border-top: 1px solid #555;">
+                                <strong>REASON:</strong> Certificate registered in Admin Panel but NOT verified by University
+                            </div>
+                        </div>
+
+                        <div class="alert alert-warning">
+                            <strong>🚫 Why Decryption Failed:</strong>
+                            <ul style="margin-top: 10px; padding-left: 20px;">
+                                <li>Certificate Status: <strong>PENDING</strong> (Not Verified)</li>
+                                <li>Student registered in Admin Panel only</li>
+                                <li>University verification step not completed</li>
+                                <li>Certificate is locked until university approves</li>
+                            </ul>
+                        </div>
+                        
+                        <div style="background: #fff3cd; padding: 15px; border-radius: 5px; margin-top: 15px; border: 1px solid #ffc107;">
+                            <strong style="color: #856404;">💡 Required Action:</strong>
+                            <p style="color: #856404; margin-top: 5px;">
+                                <strong>Step 1:</strong> Go to University Interface<br>
+                                <strong>Step 2:</strong> Enter student details (Student ID: ${cert.studentId}, Name: ${cert.fullName})<br>
+                                <strong>Step 3:</strong> Complete university verification<br>
+                                <strong>Step 4:</strong> After verification, decryption will be possible with correct key
+                            </p>
+                        </div>
+                    </div>
+                `;
+                showResult(resultDiv, html);
+                return;
+            }
+
+            const isValidKey = key && (key === cert.encryptionKey || key === cert.privateKey);
+
+            if (isValidKey) {
+                showResult(resultDiv, '<div class="alert alert-warning"><strong>⚠️ Note:</strong> You entered a valid key for a verified certificate. This tab is for testing decryption failures. Try entering a wrong key or test with an unverified certificate.</div>');
+                return;
+            }
+
+            // Show decryption failure for wrong/missing key
+            const html = `
+                <div class="alert alert-error">
+                    <h4>🔒 DECRYPTION FAILED - INVALID KEY</h4>
+                    <p><strong>Serial Number:</strong> ${serial}</p>
+                    <p><strong>Status:</strong> <span class="status-failed">Invalid/Missing Verification Key ❌</span></p>
+                </div>
+                <div style="background: #f8d7da; padding: 20px; border-radius: 10px; border: 2px solid #e74c3c; margin: 20px 0;">
+                    <h4 style="color: #721c24;">⚠️ Authentication Failed - Wrong Key</h4>
+                    <p style="color: #721c24; margin: 10px 0;">Cannot decrypt certificate data without valid verification key.</p>
+                    
+                    <div style="background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px; margin: 15px 0; font-family: monospace;">
+                        <div style="margin: 5px 0;">🔐 KEY VALIDATION FAILED</div>
+                        <div style="margin: 5px 0;">***ENCRYPTED*** Student ID: ${cert.studentId.split('').map(() => '*').join('')}</div>
+                        <div style="margin: 5px 0;">***ENCRYPTED*** Name: ${'*'.repeat(cert.fullName.length)}</div>
+                        <div style="margin: 5px 0;">***ENCRYPTED*** University: ${'*'.repeat(cert.university.length)}</div>
+                        <div style="margin: 5px 0;">***ENCRYPTED*** All other data is inaccessible</div>
+                        <div style="margin: 10px 0; padding-top: 10px; border-top: 1px solid #555;">
+                            <strong>REASON:</strong> Verification key is incorrect or missing
+                        </div>
+                    </div>
+
+                    <div class="alert alert-error">
+                        <strong>🚫 Reasons for Failure:</strong>
+                        <ul style="margin-top: 10px; padding-left: 20px;">
+                            <li>Incorrect verification key entered</li>
+                            <li>Missing verification key (field empty)</li>
+                            <li>Key has been revoked or expired</li>
+                            <li>Unauthorized access attempt</li>
+                            <li>Using key from different certificate</li>
+                        </ul>
+                    </div>
+                    
+                    <div style="background: #fff3cd; padding: 15px; border-radius: 5px; margin-top: 15px; border: 1px solid #ffc107;">
+                        <strong style="color: #856404;">💡 Solution:</strong>
+                        <p style="color: #856404; margin-top: 5px;">Contact the certificate holder or issuing university to obtain the correct verification key (Encryption Key or Private Key).</p>
+                    </div>
+                </div>
+            `;
+            showResult(resultDiv, html);
+        }
+
+        // University form submission - ONLY VERIFIES students registered in Admin
+        function submitUniversityForm() {
+            const resultDiv = document.getElementById('universityResult');
+            
+            // Collect form data
+            const formData = {
+                studentId: document.getElementById('studentId').value.trim(),
+                fullName: document.getElementById('fullName').value.trim(),
+                university: document.getElementById('universityName').value.trim(),
+                degree: document.getElementById('degreeTitle').value.trim(),
+                certType: document.getElementById('certType').value,
+                date: document.getElementById('gradDate').value
+            };
+
+            // Validate required fields
+            const missing = [];
+            Object.entries(formData).forEach(([key, value]) => {
+                if (!value || value === '') {
+                    missing.push(key);
+                }
+            });
+
+            if (missing.length > 0) {
+                showResult(resultDiv, '<div class="alert alert-error">Please fill in all required fields: ' + missing.join(', ') + '</div>');
+                return;
+            }
+
+            // Show processing
+            showResult(resultDiv, '<div class="alert alert-info">⏳ Verifying student details against Admin Panel records...</div>');
+            
+            setTimeout(() => {
+                // Search for matching student in pending registrations
+                let foundSerial = null;
+                let matchedCert = null;
+
+                for (let serial in certificateDatabase) {
+                    const cert = certificateDatabase[serial];
+                    if (cert.status === 'pending' && 
+                        cert.studentId.toLowerCase() === formData.studentId.toLowerCase() &&
+                        cert.fullName.toLowerCase() === formData.fullName.toLowerCase()) {
+                        foundSerial = serial;
+                        matchedCert = cert;
+                        break;
+                    }
+                }
+
+                if (!foundSerial) {
+                    // Student not found in Admin Panel
+                    const html = `
+                        <div class="alert alert-error">
+                            <h4>❌ Verification Failed</h4>
+                            <p><strong>Student Not Found in Admin Panel</strong></p>
+                        </div>
+                        <div style="background: #f8d7da; padding: 20px; border-radius: 10px; border: 2px solid #e74c3c; margin: 20px 0;">
+                            <h4 style="color: #721c24;">⚠️ Student Not Registered</h4>
+                            <p style="color: #721c24; margin: 10px 0;">The student details you entered do not match any pending registrations in the Admin Panel.</p>
+                            
+                            <div style="background: white; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                                <strong>Details Entered:</strong>
+                                <div style="margin-top: 10px;">
+                                    <p><strong>Student ID:</strong> ${formData.studentId}</p>
+                                    <p><strong>Full Name:</strong> ${formData.fullName}</p>
+                                    <p><strong>University:</strong> ${formData.university}</p>
+                                </div>
+                            </div>
+
+                            <div class="alert alert-warning">
+                                <strong>📋 Required Steps:</strong>
+                                <ul style="margin-top: 10px; padding-left: 20px;">
+                                    <li><strong>First:</strong> Student must be registered in Admin Panel</li>
+                                    <li><strong>Then:</strong> Come to University Interface to verify</li>
+                                    <li>Make sure Student ID and Full Name match exactly with Admin Panel entry</li>
+                                    <li>Check for spelling errors or extra spaces</li>
+                                </ul>
+                            </div>
+                        </div>
+                    `;
+                    showResult(resultDiv, html);
+                    return;
+                }
+
+                // Student found - Update to verified status
+                certificateDatabase[foundSerial].status = 'verified';
+                certificateDatabase[foundSerial].verifiedDate = new Date().toISOString().split('T')[0];
+                certificateDatabase[foundSerial].verifiedBy = formData.university;
+
+                // Handle certificate upload
+                const uploadedFile = document.getElementById('certificateUpload').files[0];
+                if (uploadedFile) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        certificateDatabase[foundSerial].certificateFile = {
+                            name: uploadedFile.name,
+                            type: uploadedFile.type,
+                            data: e.target.result
+                        };
+                        console.log(`✅ Certificate document uploaded: ${uploadedFile.name}`);
+                    };
+                    reader.readAsDataURL(uploadedFile);
+                }
+
+                const html = `
+                    <div class="alert alert-success">
+                        ✅ Student Successfully Verified by University!
+                        ${uploadedFile ? '<br>📄 Certificate document uploaded successfully!' : ''}
+                    </div>
+                    <div style="background: #d4edda; padding: 20px; border-radius: 10px; border: 2px solid #28a745; margin: 20px 0;">
+                        <h4 style="color: #155724;">🎓 Verification Complete</h4>
+                        <p style="color: #155724; margin: 10px 0;">Student details matched with Admin Panel registration. Certificate is now VERIFIED and can be decrypted.</p>
+                        ${uploadedFile ? `<p style="color: #155724;"><strong>📄 Uploaded Document:</strong> ${uploadedFile.name} (${(uploadedFile.size / 1024).toFixed(2)} KB)</p>` : ''}
+                    </div>
+                    
+                    <div class="info-row">
+                        <span><strong>Certificate Serial Number:</strong></span>
+                        <span style="color: #e74c3c; font-weight: bold; font-size: 18px;">${foundSerial}</span>
+                    </div>
+                    <div class="info-row">
+                        <span><strong>Student ID:</strong></span>
+                        <span>${matchedCert.studentId}</span>
+                    </div>
+                    <div class="info-row">
+                        <span><strong>Student Name:</strong></span>
+                        <span>${matchedCert.fullName}</span>
+                    </div>
+                    <div class="info-row">
+                        <span><strong>University:</strong></span>
+                        <span>${matchedCert.university}</span>
+                    </div>
+                    <div class="info-row">
+                        <span><strong>Degree:</strong></span>
+                        <span>${matchedCert.degree}</span>
+                    </div>
+                    <div class="info-row">
+                        <span><strong>Previous Status:</strong></span>
+                        <span style="color: #f39c12;">Pending</span>
+                    </div>
+                    <div class="info-row">
+                        <span><strong>Current Status:</strong></span>
+                        <span class="status-verified">Verified by ${formData.university} ✓</span>
+                    </div>
+                    
+                    <div style="margin-top: 30px; background: #e8f4fd; padding: 20px; border-radius: 10px;">
+                        <h4 style="color: #2c3e50;">🔐 Verification Keys (Already Generated)</h4>
+                        <p style="margin: 10px 0;">These keys were generated during Admin Panel registration:</p>
+                        <div style="margin: 15px 0;">
+                            <strong>🔐 Encryption Key:</strong>
+                            <div class="key-display">${matchedCert.encryptionKey}</div>
+                        </div>
+                        <div style="margin: 15px 0;">
+                            <strong>🔑 Private Key:</strong>
+                            <div class="key-display">${matchedCert.privateKey}</div>
+                        </div>
+                    </div>
+
+                    ${uploadedFile ? `
+                    <div style="margin-top: 20px; background: #f8f9fa; padding: 20px; border-radius: 10px; border: 2px solid #3498db;">
+                        <h4 style="color: #2c3e50;">📄 Certificate Document</h4>
+                        <p style="margin: 10px 0;">Certificate document has been uploaded and stored securely.</p>
+                        <button class="submit-btn" onclick="downloadCertificate('${foundSerial}')" style="margin-top: 10px;">
+                            📥 Download Certificate Document
+                        </button>
+                    </div>
+                    ` : ''}
+
+                    <div class="alert alert-success">
+                        <strong>🎯 Certificate Now Active:</strong> 
+                        <ul style="margin-top: 10px; padding-left: 20px;">
+                            <li>✅ Serial Number <strong>${foundSerial}</strong> is now verified</li>
+                            <li>✅ Student can use Verifier Interface with serial + key to decrypt certificate</li>
+                            <li>✅ University verification completed by: ${formData.university}</li>
+                            <li>✅ Certificate is now blockchain-secured and ready for use</li>
+                            ${uploadedFile ? '<li>✅ Certificate document stored and available for download</li>' : ''}
+                        </ul>
+                    </div>
+                `;
+                showResult(resultDiv, html);
+
+                // Reset form
+                document.getElementById('universityForm').reset();
+                document.getElementById('gradDate').value = new Date().toISOString().split('T')[0];
+                
+                console.log(`✅ Verified certificate ${foundSerial} for ${matchedCert.fullName} by ${formData.university}`);
+            }, 2000);
+        }
+
+        // Admin panel functions
+        function addStudentManually() {
+            const resultDiv = document.getElementById('adminResult');
+            
+            // Collect admin form data
+            const adminData = {
+                studentId: document.getElementById('adminStudentId').value,
+                fullName: document.getElementById('adminFullName').value,
+                university: document.getElementById('adminUniversity').value,
+                degree: document.getElementById('adminDegree').value,
+                certType: document.getElementById('adminCertType').value,
+                gpa: document.getElementById('adminGPA').value
+            };
+
+            // Validate required fields
+            const missing = [];
+            Object.entries(adminData).forEach(([key, value]) => {
+                if (!value || value.toString().trim() === '') {
+                    missing.push(key.replace('admin', ''));
+                }
+            });
+
+            if (missing.length > 0) {
+                showResult(resultDiv, '<div class="alert alert-error">Please fill in all required fields: ' + missing.join(', ') + '</div>');
+                return;
+            }
+
+            // Show processing
+            showResult(resultDiv, '<div class="alert alert-info">⏳ Registering student and generating unique security keys...</div>');
+
+            setTimeout(() => {
+                // Generate unique serial and timestamp
+                const serial = nextSerialNumber.toString();
+                const timestamp = Date.now().toString();
+                
+                // Generate UNIQUE keys for this specific student
+                const newCert = {
+                    ...adminData,
+                    date: new Date().toISOString().split('T')[0],
+                    createdOn: Math.floor(Date.now() / 1000).toString(),
+                    status: 'pending',
+                    honors: 'Magna Cum Laude',
+                    specialization: 'Advanced Studies',
+                    credits: '120',
+                    blockchainHash: generateUniqueHash(adminData.studentId, timestamp),
+                    encryptionKey: generateUniqueEncryptionKey(adminData.studentId, timestamp),
+                    privateKey: generateUniquePrivateKey(adminData.studentId, timestamp)
+                };
+
+                certificateDatabase[serial] = newCert;
+                nextSerialNumber++;
+
+                const html = `
+                    <div class="alert alert-success">
+                        ✅ Student Successfully Registered (Pending University Verification)
+                    </div>
+                    
+                    <div style="background: #fff3cd; padding: 20px; border-radius: 10px; border: 2px solid #ffc107; margin: 20px 0;">
+                        <h4 style="color: #856404;">⚠️ Important: Verification Required</h4>
+                        <p style="color: #856404; margin: 10px 0;">Student has been registered with unique keys but <strong>STATUS: PENDING</strong></p>
+                        <p style="color: #856404;"><strong>Next Step:</strong> Student must be verified in University Interface before certificate can be used.</p>
+                    </div>
+                    
+                    <div class="additional-info-grid">
+                        <div class="info-card">
+                            <h4>🆔 Serial Number</h4>
+                            <p style="font-size: 18px; font-weight: bold; color: #e74c3c;">${serial}</p>
+                        </div>
+                        <div class="info-card">
+                            <h4>👤 Student</h4>
+                            <p>${adminData.fullName}</p>
+                        </div>
+                        <div class="info-card">
+                            <h4>🆔 Student ID</h4>
+                            <p>${adminData.studentId}</p>
+                        </div>
+                        <div class="info-card">
+                            <h4>🏛️ University</h4>
+                            <p>${adminData.university}</p>
+                        </div>
+                        <div class="info-card">
+                            <h4>🎓 Degree</h4>
+                            <p>${adminData.degree}</p>
+                        </div>
+                        <div class="info-card">
+                            <h4>📈 GPA</h4>
+                            <p>${adminData.gpa}</p>
+                        </div>
+                        <div class="info-card">
+                            <h4>⏳ Status</h4>
+                            <p style="color: #f39c12; font-weight: bold;">PENDING</p>
+                        </div>
+                        <div class="info-card">
+                            <h4>📋 Verification</h4>
+                            <p style="color: #e74c3c;">Required</p>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 30px; background: #e8f4fd; padding: 20px; border-radius: 10px; border: 2px solid #3498db;">
+                        <h4 style="color: #2c3e50;">🔐 Unique Auto-Generated Keys for ${adminData.fullName}</h4>
+                        <p style="color: #2c3e50; margin: 10px 0;"><strong>✅ Keys Generated</strong> - But certificate must be verified before use!</p>
+                        
+                        <div style="margin: 15px 0;">
+                            <strong>🔗 Blockchain Hash:</strong>
+                            <div class="key-display">${newCert.blockchainHash}</div>
+                        </div>
+                        <div style="margin: 15px 0; background: #fff3cd; padding: 15px; border-radius: 5px; border: 2px solid #ffc107;">
+                            <strong style="color: #856404;">🔐 Encryption Key:</strong>
+                            <div class="key-display" style="background: #856404;">${newCert.encryptionKey}</div>
+                            <p style="color: #856404; margin-top: 10px;">⚠️ Cannot be used until university verification</p>
+                        </div>
+                        <div style="margin: 15px 0; background: #fff3cd; padding: 15px; border-radius: 5px; border: 2px solid #ffc107;">
+                            <strong style="color: #856404;">🔑 Private Key:</strong>
+                            <div class="key-display" style="background: #856404;">${newCert.privateKey}</div>
+                            <p style="color: #856404; margin-top: 10px;">⚠️ Cannot be used until university verification</p>
+                        </div>
+                        <div style="margin: 15px 0;">
+                            <strong>📋 Transaction ID:</strong>
+                            <div class="key-display">${generateTransactionId()}</div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <h4>🎯 Required Verification Steps:</h4>
+                        <ol style="margin-top: 10px; padding-left: 20px;">
+                            <li><strong>Student Details Saved:</strong> Serial ${serial}, ID: ${adminData.studentId}, Name: ${adminData.fullName}</li>
+                            <li><strong>Go to University Interface</strong> and enter the same details:</li>
+                            <ul style="margin-left: 20px; margin-top: 5px;">
+                                <li>Student ID: <code style="background: #fff; padding: 2px 6px; border-radius: 3px;">${adminData.studentId}</code></li>
+                                <li>Full Name: <code style="background: #fff; padding: 2px 6px; border-radius: 3px;">${adminData.fullName}</code></li>
+                            </ul>
+                            <li><strong>After University Verification:</strong> Status changes to VERIFIED</li>
+                            <li><strong>Then:</strong> Student can use Verifier Interface with serial + key
+                        </ol>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <strong>📝 Current Status:</strong>
+                        <ul style="margin-top: 10px; padding-left: 20px;">
+                            <li>✅ Student registered in Admin Panel</li>
+                            <li>✅ Unique keys generated and saved</li>
+                            <li>⏳ Waiting for University verification</li>
+                            <li>🔒 Certificate locked until verified</li>
+                        </ul>
+                    </div>
+                `;
+                showResult(resultDiv, html);
+
+                // Reset form
+                document.getElementById('adminForm').reset();
+                
+                console.log(`✅ Registered student ${serial} with unique keys for ${adminData.fullName}`);
+                console.log(`   Encryption Key: ${newCert.encryptionKey}`);
+                console.log(`   Private Key: ${newCert.privateKey}`);
+            }, 2000);
+        }
+
+        // Utility functions
+        function showResult(element, html) {
+            element.innerHTML = html;
+            element.classList.add('show');
+            element.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // Certificate download function
+        function downloadCertificate(serialNumber) {
+            const cert = certificateDatabase[serialNumber];
+            if (!cert || !cert.certificateFile) {
+                alert('❌ No certificate document found for this serial number.');
+                return;
+            }
+
+            // Create download link
+            const link = document.createElement('a');
+            link.href = cert.certificateFile.data;
+            link.download = `Certificate_${cert.studentId}_${cert.fullName.replace(/\s+/g, '_')}_${cert.certificateFile.name}`;
+            
+            // Trigger download
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            console.log(`✅ Downloaded certificate for ${cert.fullName} (Serial: ${serialNumber})`);
+            
+            // Show success message
+            const successMsg = document.createElement('div');
+            successMsg.className = 'alert alert-success';
+            successMsg.style.position = 'fixed';
+            successMsg.style.top = '20px';
+            successMsg.style.right = '20px';
+            successMsg.style.zIndex = '9999';
+            successMsg.style.minWidth = '300px';
+            successMsg.innerHTML = '<strong>✅ Download Started!</strong>' + '<br>' + 'Certificate document is being downloaded.';
+            document.body.appendChild(successMsg);
+            
+            setTimeout(() => {
+                successMsg.remove();
+            }, 3000);
+        }
+
+        // Log system info
+        console.log('🎓 Secure Academic Verification Platform Ready');
+        console.log('🔐 Key Features:');
+        console.log('   ✅ Unique keys generated for each student');
+        console.log('   ✅ Two-step process: Admin Registration → University Verification');
+        console.log('   ✅ Key-based verification required for decryption');
+        console.log('   ✅ Decryption fails for unverified students');
+        console.log('');
+        console.log('📝 Complete Workflow:');
+        console.log('   1. Admin Panel: Register student → Status: PENDING (keys generated)');
+        console.log('   2. University Interface: Verify student details → Status: VERIFIED');
+        console.log('   3. Verifier Interface: Enter serial + key → View decrypted data');
+        console.log('   ❌ Without university verification → Decryption locked');
+        console.log('   ❌ Without correct key → Decryption failed');
+    </script>
+</body>
+</html>
